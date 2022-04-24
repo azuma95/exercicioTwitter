@@ -49,7 +49,7 @@
 
                         @foreach($messages as $message)
                             <div class="card">
-                                <div class="card-body">
+                                <div class="card-body">                                    
                                     <div class="card.body">
                                         <h5><a href="/u/{{ $message->user->id }}"> {{ $message->user->name }} </a> </h5>
                                     </div>
@@ -68,7 +68,6 @@
                                             <a href="{{ route('edit-message', $message) }}" style="margin-left: 10px;">Editar</a>
                                         </div>
                                     @endif
-
                                 </div>
                             </div>
                         @endforeach
@@ -78,6 +77,26 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="card">
+
+                <div class="card-header">
+                    Notificações
+                </div>
+
+                <div class="card-body">
+                    @foreach(Auth::user()->notifications as $notification)
+                        <div class="card"> 
+                            <h5 style="margin-top:15px; margin-left:10px;"><a href="/u/{{ $notification->data['user_id'] }}"> {{ $notification->data['user_name'] }} é agora teu seguidor! </a></h5>
+                            <p style="margin-left:10px;">{{ $notification->created_at->diffForHumans() }}</p>
+                        </div>
+                    @endforeach
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection
