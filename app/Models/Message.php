@@ -9,7 +9,8 @@ class Message extends Model
 {
     use HasFactory;
 
-    function user(){
+    function user()
+    {
         return $this->belongsTo('App\Models\User');
     }
 }

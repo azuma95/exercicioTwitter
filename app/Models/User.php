@@ -47,11 +47,13 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Message');
     }
 
-    function following(){
+    function following()
+    {
         return $this->belongsToMany('App\Models\User', 'followers', 'user_id', 'following_id');
     }
 
-    function isFollowing($user){
+    function isFollowing($user)
+    {
         return $this->following()->where('following_id', $user->id)->count();
     }
 }

@@ -26,11 +26,7 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index()
-    {
-        //$following = Auth::user()->following->pluck('id');
-        
-        //$messages = Message::whereIn('user_id', $following)->orWhere('user_id', Auth::user()->id)->get();  
-        
+    {        
         $messages = Message::get();  
 
         return view('home', [
@@ -113,5 +109,77 @@ class HomeController extends Controller
         $message->delete();
 
         return redirect()->route('home')->with(['err' => 'Successfully deleted']);
+    }
+
+    public function moveMessageUp($message_id)
+    {
+        // guardo o valor da mensagem atual e da próxima e depois dou lhes valores altos para não encontrar erro
+        // depois troco os valores dos id's        
+
+        $message = Message::findOrFail($message_id);
+
+        $currentID = $message_id;
+        $previous = Message::where('id', '<', $message->id)->max('id');        
+
+        if(!isset($previous))
+        {
+            $err = 'There is no post before';
+        }
+        else
+        {
+            $prevMessage = Message::findOrFail($previous);
+
+            $message->id = strip_tags(1000000000000);
+            $message->save(); 
+
+            $prevMessage->id = strip_tags(1000000000001);
+            $prevMessage->save(); 
+
+            $message->id = strip_tags($previous);
+            $message->save();   
+
+            $prevMessage->id = strip_tags($currentID);
+            $prevMessage->save(); 
+
+            $err = 'Success changing order';
+        }        
+
+        return redirect()->route('home')->with(['err'=> $err]); 
+    }
+
+    public function moveMessageDown($message_id)
+    {
+        // guardo o valor da mensagem atual e da próxima e depois dou lhes valores altos para não encontrar erro
+        // depois troco os valores dos id's        
+
+        $message = Message::findOrFail($message_id);
+
+        $currentID = $message_id;
+        $next = Message::where('id', '>', $message->id)->min('id');        
+
+        if(!isset($next))
+        {
+            $err = 'There is no post after';
+        }
+        else
+        {
+            $nextMessage = Message::findOrFail($next);
+
+            $message->id = strip_tags(1000000000000);
+            $message->save(); 
+
+            $nextMessage->id = strip_tags(1000000000001);
+            $nextMessage->save(); 
+
+            $message->id = strip_tags($next);
+            $message->save();   
+
+            $nextMessage->id = strip_tags($currentID);
+            $nextMessage->save(); 
+
+            $err = 'Success changing order';
+        }        
+
+        return redirect()->route('home')->with(['err'=> $err]); 
     }
 }

@@ -34,6 +34,9 @@ Route::get('/u/{user}', [ProfileController::class, 'index'])->name('index');
 Route::post('/home', [HomeController::class, 'postCreateMessage'])->name('postCreateMessage');
 Route::get('/delete/{message_id}', [HomeController::class, 'getDeletePost'])->name('getDeletePost');
 
+Route::get('/moveMessageUp/{message_id}', [HomeController::class, 'moveMessageUp'])->name('moveMessageUp'); 
+Route::get('/moveMessageDown/{message_id}', [HomeController::class, 'moveMessageDown'])->name('moveMessageDown'); 
+
 Route::get('/edit-message/{message}', [HomeController::class, 'postEditMessage'])->name('edit-message');
 Route::post('/edit-message/{message_id}', [HomeController::class, 'postupdateMessage'])->name('update-message');
 
