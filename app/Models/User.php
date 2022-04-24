@@ -41,4 +41,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    function messages()
+    {
+        return $this->hasMany('App\Models\Message');
+    }
+
+    function following(){
+        return $this->belongsToMany('App\Models\User', 'followers', 'user_id', 'following_id');
+    }
 }
