@@ -50,4 +50,8 @@ class User extends Authenticatable
     function following(){
         return $this->belongsToMany('App\Models\User', 'followers', 'user_id', 'following_id');
     }
+
+    function isFollowing($user){
+        return $this->following()->where('following_id', $user->id)->count();
+    }
 }
