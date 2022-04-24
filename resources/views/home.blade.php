@@ -37,7 +37,7 @@
                     <div class="card" style="margin-top: 10px;">
                         <div class="card-body">
                            <form action="" method="post" action="{{ route('postCreateMessage') }}">
-                               <h2>Criar nova mensagem</h2>
+                               <h2 style="margin-top:10px;">Criar nova mensagem</h2>
                                <textarea name="body" rows="3" class="form-control" placeholder="Criar Mensagem"></textarea>
                                <input type="hidden" value="{{ Session::token() }}" name="_token">
                                <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Criar!</button>
@@ -62,12 +62,19 @@
                                         <small> {{ $message->created_at->diffForHumans() }} </small>
                                     </div>
 
-                                    @if(Auth::user() == $message->user)
-                                        <div class="card.body">
-                                            <a href="{{ route('getDeletePost', ['message_id' => $message->id]) }}">Apagar</a>
-                                            <a href="{{ route('edit-message', $message) }}" style="margin-left: 10px;">Editar</a>
-                                        </div>
-                                    @endif
+                                    <div class="card.body">
+                                        @if(Auth::user() == $message->user)                                        
+                                                <a href="{{ route('getDeletePost', ['message_id' => $message->id]) }}">Apagar</a>
+                                                <a href="{{ route('edit-message', $message) }}" style="margin-left: 10px;">Editar</a>                                        
+                                        @endif
+                                        
+                                        <div class="card" style="margin-top: 15px;">
+                                            <div class="card-body" style="text-align: center;">
+                                                <a href="{{ route('moveMessageUp', ['message_id' => $message->id]) }}" style="margin-right:25px;"> Mover para cima </a>
+                                                <a href="{{ route('moveMessageDown', ['message_id' => $message->id]) }}" style="margin-left:25px;"> Mover para baixo</a>
+                                            </div>  
+                                        </div>                                                                              
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
