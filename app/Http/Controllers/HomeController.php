@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -27,7 +28,7 @@ class HomeController extends Controller
      */
     public function index()
     {        
-        $messages = Message::get();  
+        $messages = Message::get()->sortBy('sort_order');; 
 
         return view('home', [
             'messages' => $messages
@@ -64,14 +65,19 @@ class HomeController extends Controller
         ]);
 
         $message = new Message();
+
         $message->body = strip_tags($request['body']);
+        $message->sort_order = strip_tags(0);
 
         $err = 'There was an error';
 
         if($request->user()->messages()->save($message))
         {
             $err = 'Post successfully created.';
-        }       
+            //colocar o valor do id no sort_order
+            $message->sort_order = strip_tags($message->id);
+            $message->save();
+        }   
 
         return redirect()->route('home')->with(['err'=> $err]);        
     }
@@ -113,33 +119,28 @@ class HomeController extends Controller
 
     public function moveMessageUp($message_id)
     {
-        // guardo o valor da mensagem atual e da próxima e depois dou lhes valores altos para não encontrar erro
-        // depois troco os valores dos id's        
+        // guardo o valor do sort_order da mensagem atual, procuro a mensagem com anterior sort_order e verifico se existe mensagem anterior
+        // depois troco os valores dos sort_orders     
 
         $message = Message::findOrFail($message_id);
+        $currentMsgPos = $message->sort_order;
 
-        $currentID = $message_id;
-        $previous = Message::where('id', '<', $message->id)->max('id');        
+        $previous = Message::where('sort_order', '<', $message->sort_order)->max('sort_order');        
 
         if(!isset($previous))
         {
             $err = 'There is no post before';
         }
         else
-        {
-            $prevMessage = Message::findOrFail($previous);
-
-            $message->id = strip_tags(1000000000000);
-            $message->save(); 
-
-            $prevMessage->id = strip_tags(1000000000001);
+        {            
+            $prevMsg = DB::table('messages')->where('sort_order', $previous)->first();
+            $prevMessage = Message::findOrFail($prevMsg->id);
+            
+            $prevMessage->sort_order = $currentMsgPos;
             $prevMessage->save(); 
 
-            $message->id = strip_tags($previous);
-            $message->save();   
-
-            $prevMessage->id = strip_tags($currentID);
-            $prevMessage->save(); 
+            $message->sort_order = $previous;
+            $message->save();             
 
             $err = 'Success changing order';
         }        
@@ -149,13 +150,11 @@ class HomeController extends Controller
 
     public function moveMessageDown($message_id)
     {
-        // guardo o valor da mensagem atual e da próxima e depois dou lhes valores altos para não encontrar erro
-        // depois troco os valores dos id's        
 
         $message = Message::findOrFail($message_id);
+        $currentMsgPos = $message->sort_order;
 
-        $currentID = $message_id;
-        $next = Message::where('id', '>', $message->id)->min('id');        
+        $next = Message::where('sort_order', '>', $message->sort_order)->min('sort_order');        
 
         if(!isset($next))
         {
@@ -163,19 +162,14 @@ class HomeController extends Controller
         }
         else
         {
-            $nextMessage = Message::findOrFail($next);
+            $nextMsg = DB::table('messages')->where('sort_order', $next)->first();
+            $nextMessage = Message::findOrFail($nextMsg->id);   
 
-            $message->id = strip_tags(1000000000000);
-            $message->save(); 
-
-            $nextMessage->id = strip_tags(1000000000001);
+            $nextMessage->sort_order = $currentMsgPos;
             $nextMessage->save(); 
 
-            $message->id = strip_tags($next);
-            $message->save();   
-
-            $nextMessage->id = strip_tags($currentID);
-            $nextMessage->save(); 
+            $message->sort_order = $next;
+            $message->save();
 
             $err = 'Success changing order';
         }        
